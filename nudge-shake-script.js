@@ -1,32 +1,18 @@
-// Nudge shake effect - robust version
+// Nudge shake effect - only when YOU are nudged (robust)
 // Add this to Rocket.Chat: Admin → Layout → Custom Scripts → Custom Script for Logged In Users
 (function() {
   const STORAGE_KEY = "rc_nudge_seen";
   const seen = new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"));
   
   const saveSeen = () => {
-    const arr = [...seen].slice(-200);
+    const arr = [...seen].slice(-500);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
   };
 
-  // Track current room to reset timer on room change
-  let currentRoom = window.location.pathname;
-  let initialLoadDone = false;
-  
-  const resetTimer = () => {
-    initialLoadDone = false;
-    setTimeout(() => { initialLoadDone = true; }, 2000);
+  const getMyUsername = () => {
+    if (window.Meteor?.user) return Meteor.user()?.username;
+    return null;
   };
-  
-  // Watch for room changes
-  setInterval(() => {
-    if (window.location.pathname !== currentRoom) {
-      currentRoom = window.location.pathname;
-      resetTimer();
-    }
-  }, 500);
-  
-  resetTimer();
 
   const style = document.createElement("style");
   style.textContent = `
@@ -42,16 +28,19 @@
   document.head.appendChild(style);
 
   const observer = new MutationObserver((mutations) => {
-    if (!initialLoadDone) return;
+    const myUsername = getMyUsername();
+    if (!myUsername) return;
     
     mutations.forEach(mutation => {
       mutation.addedNodes.forEach(node => {
         if (node.nodeType === 1) {
           const text = node.textContent || "";
-          if (text.includes("knuffade")) {
-            // Use the nudge text itself as ID (e.g. "lillpelle knuffade @user")
-            const match = text.match(/(\w+ knuffade @\w+)/);
-            const msgId = match ? match[1] + "_" + currentRoom : text.substring(0, 100);
+          
+          // Check if this is a nudge directed at ME
+          const nudgeMatch = text.match(/(\w+) knuffade @(\w+)/);
+          if (nudgeMatch && nudgeMatch[2].toLowerCase() === myUsername.toLowerCase()) {
+            // Use consistent ID: "sender_knuffade_target_roompath"
+            const msgId = nudgeMatch[1] + "_knuffade_" + nudgeMatch[2] + "_" + window.location.pathname;
             
             if (!seen.has(msgId)) {
               seen.add(msgId);
