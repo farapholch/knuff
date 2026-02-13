@@ -1,11 +1,16 @@
-// Nudge shake effect - only new messages
+// Nudge shake effect - with localStorage persistence
 // Add this to Rocket.Chat: Admin → Layout → Custom Scripts → Custom Script for Logged In Users
 (function() {
-  const startTime = Date.now();
-  let initialLoadDone = false;
+  const STORAGE_KEY = "rc_nudge_seen";
+  const seen = new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"));
   
-  // Wait for initial page load
-  setTimeout(() => { initialLoadDone = true; }, 3000);
+  const saveSeen = () => {
+    const arr = [...seen].slice(-200);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
+  };
+
+  let initialLoadDone = false;
+  setTimeout(() => { initialLoadDone = true; }, 2000);
 
   const style = document.createElement("style");
   style.textContent = `
@@ -26,8 +31,16 @@
     mutations.forEach(mutation => {
       mutation.addedNodes.forEach(node => {
         if (node.nodeType === 1 && node.textContent && node.textContent.includes("knuffade")) {
-          document.body.classList.add("nudge-shaking");
-          setTimeout(() => document.body.classList.remove("nudge-shaking"), 500);
+          // Find message ID from parent elements
+          const msgEl = node.closest("[data-qa-id], [data-id], [id*='message']") || node;
+          const msgId = msgEl.getAttribute("data-qa-id") || msgEl.getAttribute("data-id") || msgEl.id || node.textContent.substring(0, 80);
+          
+          if (!seen.has(msgId)) {
+            seen.add(msgId);
+            saveSeen();
+            document.body.classList.add("nudge-shaking");
+            setTimeout(() => document.body.classList.remove("nudge-shaking"), 500);
+          }
         }
       });
     });
