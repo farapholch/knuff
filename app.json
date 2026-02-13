@@ -1,0 +1,30 @@
+{
+    "id": "4bab2259-8cde-4879-bba0-1e3c15710b65",
+    "version": "1.11.0",
+    "requiredApiVersion": "^1.41.0",
+    "iconFile": "icon.png",
+    "author": {
+        "name": "Team Våffla",
+        "homepage": "https://pelleops.se",
+        "support": "https://pelleops.se"
+    },
+    "name": "Knuff",
+    "nameSlug": "knuff",
+    "classFile": "NudgeApp.ts",
+    "description": "Skicka en knuff till någon - precis som i MSN Messenger!",
+    "implements": [],
+    "permissions": [
+        {
+            "name": "slashcommand"
+        },
+        {
+            "name": "room.read"
+        },
+        {
+            "name": "message.write"
+        },
+        {
+            "name": "user.read"
+        }
+    ]
+}

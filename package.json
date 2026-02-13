@@ -1,0 +1,19 @@
+{
+    "name": "knuff",
+    "version": "1.0.0",
+    "description": "Skicka nudges till dina vänner - precis som i MSN Messenger!",
+    "main": "KnuffApp.ts",
+    "scripts": {
+        "build": "rc-apps package"
+    },
+    "author": "Team Våffla",
+    "license": "MIT",
+    "devDependencies": {
+        "@rocket.chat/apps-engine": "^1.41.0",
+        "typescript": "^5.0.0"
+    },
+    "dependencies": {
+        "@rocket.chat/ui-kit": "^0.39.0",
+        "@types/node": "^16.18.126"
+    }
+}
