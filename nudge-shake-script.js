@@ -1,4 +1,4 @@
-// Nudge shake effect - with localStorage persistence
+// Nudge shake effect - robust version
 // Add this to Rocket.Chat: Admin → Layout → Custom Scripts → Custom Script for Logged In Users
 (function() {
   const STORAGE_KEY = "rc_nudge_seen";
@@ -9,8 +9,24 @@
     localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
   };
 
+  // Track current room to reset timer on room change
+  let currentRoom = window.location.pathname;
   let initialLoadDone = false;
-  setTimeout(() => { initialLoadDone = true; }, 2000);
+  
+  const resetTimer = () => {
+    initialLoadDone = false;
+    setTimeout(() => { initialLoadDone = true; }, 2000);
+  };
+  
+  // Watch for room changes
+  setInterval(() => {
+    if (window.location.pathname !== currentRoom) {
+      currentRoom = window.location.pathname;
+      resetTimer();
+    }
+  }, 500);
+  
+  resetTimer();
 
   const style = document.createElement("style");
   style.textContent = `
@@ -30,16 +46,19 @@
     
     mutations.forEach(mutation => {
       mutation.addedNodes.forEach(node => {
-        if (node.nodeType === 1 && node.textContent && node.textContent.includes("knuffade")) {
-          // Find message ID from parent elements
-          const msgEl = node.closest("[data-qa-id], [data-id], [id*='message']") || node;
-          const msgId = msgEl.getAttribute("data-qa-id") || msgEl.getAttribute("data-id") || msgEl.id || node.textContent.substring(0, 80);
-          
-          if (!seen.has(msgId)) {
-            seen.add(msgId);
-            saveSeen();
-            document.body.classList.add("nudge-shaking");
-            setTimeout(() => document.body.classList.remove("nudge-shaking"), 500);
+        if (node.nodeType === 1) {
+          const text = node.textContent || "";
+          if (text.includes("knuffade")) {
+            // Use the nudge text itself as ID (e.g. "lillpelle knuffade @user")
+            const match = text.match(/(\w+ knuffade @\w+)/);
+            const msgId = match ? match[1] + "_" + currentRoom : text.substring(0, 100);
+            
+            if (!seen.has(msgId)) {
+              seen.add(msgId);
+              saveSeen();
+              document.body.classList.add("nudge-shaking");
+              setTimeout(() => document.body.classList.remove("nudge-shaking"), 500);
+            }
           }
         }
       });
