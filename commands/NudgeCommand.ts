@@ -34,11 +34,31 @@ export class NudgeCommand implements ISlashCommand {
 
         if (!args[0]) {
             // No argument - try to auto-detect in DM
-            if (room.type === RoomType.DIRECT_MESSAGE && room.userIds) {
-                // Use userIds instead of usernames (more reliable)
-                const otherUserId = room.userIds.find(id => id !== sender.id);
-                if (otherUserId) {
-                    targetUser = await read.getUserReader().getById(otherUserId);
+            if (room.type === RoomType.DIRECT_MESSAGE) {
+                // Try userIds first
+                if (room.userIds) {
+                    const otherUserId = room.userIds.find(id => id !== sender.id);
+                    if (otherUserId) {
+                        // Try getById first, then fall back to getByUsername
+                        // (RC sometimes stores usernames in userIds array)
+                        targetUser = await read.getUserReader().getById(otherUserId);
+                        if (!targetUser) {
+                            targetUser = await read.getUserReader().getByUsername(otherUserId);
+                        }
+                    }
+                }
+
+                // Fallback: try to get usernames from room members
+                if (!targetUser) {
+                    const members = await read.getRoomReader().getMembers(room.id);
+                    if (members) {
+                        for (const member of members) {
+                            if (member.id !== sender.id) {
+                                targetUser = member;
+                                break;
+                            }
+                        }
+                    }
                 }
 
                 if (!targetUser) {

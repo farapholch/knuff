@@ -31,21 +31,40 @@ export class KnuffCommand implements ISlashCommand {
         const args = context.getArguments();
 
         let targetUser;
-        let targetUsername: string;
 
         if (!args[0]) {
-            // No argument - check if we're in a DM
-            if (room.type === RoomType.DIRECT_MESSAGE && room.usernames) {
-                // Find the other username in the DM
-                const otherUsername = room.usernames.find(u => u !== sender.username);
-                if (otherUsername) {
-                    targetUser = await read.getUserReader().getByUsername(otherUsername);
+            // No argument - try to auto-detect in DM
+            if (room.type === RoomType.DIRECT_MESSAGE) {
+                // Try userIds first
+                if (room.userIds) {
+                    const otherUserId = room.userIds.find(id => id !== sender.id);
+                    if (otherUserId) {
+                        // Try getById first, then fall back to getByUsername
+                        // (RC sometimes stores usernames in userIds array)
+                        targetUser = await read.getUserReader().getById(otherUserId);
+                        if (!targetUser) {
+                            targetUser = await read.getUserReader().getByUsername(otherUserId);
+                        }
+                    }
                 }
-                
+
+                // Fallback: try to get usernames from room members
+                if (!targetUser) {
+                    const members = await read.getRoomReader().getMembers(room.id);
+                    if (members) {
+                        for (const member of members) {
+                            if (member.id !== sender.id) {
+                                targetUser = member;
+                                break;
+                            }
+                        }
+                    }
+                }
+
                 if (!targetUser) {
                     const msg = modify.getCreator().startMessage();
                     msg.setRoom(room);
-                    msg.setText("Kunde inte hitta den andra personen.");
+                    msg.setText("Kunde inte hitta den andra personen i konversationen.");
                     await modify.getNotifier().notifyUser(sender, msg.getMessage());
                     return;
                 }
@@ -57,7 +76,7 @@ export class KnuffCommand implements ISlashCommand {
                 return;
             }
         } else {
-            targetUsername = args[0].replace(/^@/, "");
+            const targetUsername = args[0].replace(/^@/, "");
             targetUser = await read.getUserReader().getByUsername(targetUsername);
 
             if (!targetUser) {
