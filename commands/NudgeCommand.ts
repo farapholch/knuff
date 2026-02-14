@@ -33,23 +33,25 @@ export class NudgeCommand implements ISlashCommand {
         let targetUser;
 
         if (!args[0]) {
-            if (room.type === RoomType.DIRECT_MESSAGE && room.usernames) {
-                const otherUsername = room.usernames.find(u => u !== sender.username);
-                if (otherUsername) {
-                    targetUser = await read.getUserReader().getByUsername(otherUsername);
+            // No argument - try to auto-detect in DM
+            if (room.type === RoomType.DIRECT_MESSAGE && room.userIds) {
+                // Use userIds instead of usernames (more reliable)
+                const otherUserId = room.userIds.find(id => id !== sender.id);
+                if (otherUserId) {
+                    targetUser = await read.getUserReader().getById(otherUserId);
                 }
-                
+
                 if (!targetUser) {
                     const msg = modify.getCreator().startMessage();
                     msg.setRoom(room);
-                    msg.setText("Could not find the other person.");
+                    msg.setText("Kunde inte hitta den andra personen i konversationen.");
                     await modify.getNotifier().notifyUser(sender, msg.getMessage());
                     return;
                 }
             } else {
                 const msg = modify.getCreator().startMessage();
                 msg.setRoom(room);
-                msg.setText("Usage: `/nudge @username` or use in a DM.");
+                msg.setText("Användning: `/knuff @användarnamn` eller använd i ett DM.");
                 await modify.getNotifier().notifyUser(sender, msg.getMessage());
                 return;
             }
@@ -60,7 +62,7 @@ export class NudgeCommand implements ISlashCommand {
             if (!targetUser) {
                 const msg = modify.getCreator().startMessage();
                 msg.setRoom(room);
-                msg.setText(`Could not find user: ${targetUsername}`);
+                msg.setText(`Kunde inte hitta användare: ${targetUsername}`);
                 await modify.getNotifier().notifyUser(sender, msg.getMessage());
                 return;
             }
