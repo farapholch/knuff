@@ -37,7 +37,14 @@ export class NudgeCommand implements ISlashCommand {
             if (room.type === RoomType.DIRECT_MESSAGE) {
                 // Try userIds first
                 if (room.userIds) {
-                    const otherUserId = room.userIds.find(id => id !== sender.id);
+                    // Find the other user, or self if it's a self-DM
+                    let otherUserId = room.userIds.find(id => id !== sender.id);
+
+                    // Self-DM: only one unique user in the room
+                    if (!otherUserId && room.userIds.length > 0) {
+                        otherUserId = room.userIds[0];
+                    }
+
                     if (otherUserId) {
                         // Try getById first, then fall back to getByUsername
                         // (RC sometimes stores usernames in userIds array)
@@ -51,12 +58,17 @@ export class NudgeCommand implements ISlashCommand {
                 // Fallback: try to get usernames from room members
                 if (!targetUser) {
                     const members = await read.getRoomReader().getMembers(room.id);
-                    if (members) {
+                    if (members && members.length > 0) {
+                        // Prefer the other user, but use self if it's a self-DM
                         for (const member of members) {
                             if (member.id !== sender.id) {
                                 targetUser = member;
                                 break;
                             }
+                        }
+                        // Self-DM fallback
+                        if (!targetUser) {
+                            targetUser = members[0];
                         }
                     }
                 }
