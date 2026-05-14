@@ -9,11 +9,11 @@
     "author": "Team Våffla",
     "license": "MIT",
     "devDependencies": {
-        "@rocket.chat/apps-engine": "^1.41.0",
+        "@rocket.chat/apps-engine": "^1.62.0",
         "typescript": "^5.0.0"
     },
     "dependencies": {
-        "@rocket.chat/ui-kit": "^0.39.0",
+        "@rocket.chat/ui-kit": "^1.0.0",
         "@types/node": "^16.18.126"
     }
 }
