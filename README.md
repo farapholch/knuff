@@ -1,71 +1,71 @@
 # Knuff
 
-**Skicka en knuff till någon - precis som i MSN Messenger!**
+**Send someone a nudge - just like in MSN Messenger!**
 
-En Rocket.Chat app av Team Våffla.
+A Rocket.Chat app by Team Våffla.
 
 ## Installation
 
-1. Ladda ner senaste `.zip` från [Releases](https://github.com/farapholch/knuff/releases)
-2. Gå till **Admin → Marketplace → Private Apps → Upload App**
-3. Ladda upp zip-filen
+1. Download the latest `.zip` from [Releases](https://github.com/farapholch/knuff/releases)
+2. Go to **Admin → Marketplace → Private Apps → Upload App**
+3. Upload the zip file
 
-## Kommandon
+## Commands
 
-| Kommando | Beskrivning |
-|----------|-------------|
-| `/knuff` | Knuffa personen du chattar med (i DM) |
-| `/knuff @användare` | Knuffa en specifik användare |
-| `/nudge` | Samma som `/knuff` (engelska) |
-| `/nudge @username` | Knuffa en specifik användare |
+| Command | Description |
+|---------|-------------|
+| `/knuff` | Nudge the person you are chatting with (in a DM) |
+| `/knuff @user` | Nudge a specific user |
+| `/nudge` | Same as `/knuff` (English alias) |
+| `/nudge @user` | Nudge a specific user |
 
 ### Auto-DM
 
-I direktmeddelanden behöver du inte ange vem du vill knuffa - appen hittar den andra personen automatiskt!
+In direct messages you don't need to specify who to nudge - the app finds the other person automatically!
 
 ## Bonus: Custom Emoji
 
-Ladda upp `:nudge:`/`:knuff:` emoji för extra nostalgi:
+Upload a `:nudge:`/`:knuff:` emoji for extra nostalgia:
 
-1. Gå till **Admin → Custom Emoji → Add**
-2. Ladda upp `nudge-emoji.gif` från detta repo
-3. Namnge den `nudge` (och/eller `knuff`)
+1. Go to **Admin → Custom Emoji → Add**
+2. Upload `nudge-emoji.gif` from this repo
+3. Name it `nudge` (and/or `knuff`)
 
-## Bonus: Shake-effekt
+## Bonus: Shake effect
 
-Vill du att skärmen ska skaka när du blir knuffad? Lägg till det medföljande skriptet:
+Want the screen to shake when you get nudged? Add the included script:
 
-1. Gå till **Admin → Layout → Custom Scripts**
-2. Under **Custom Script for Logged In Users**, klistra in innehållet från `nudge-shake-script.js`
-3. Spara
+1. Go to **Admin → Layout → Custom Scripts**
+2. Under **Custom Script for Logged In Users**, paste the contents of `nudge-shake-script.js`
+3. Save
 
-Nu skakar skärmen när någon knuffar dig - precis som i MSN Messenger!
+Now the screen shakes when someone nudges you - just like in MSN Messenger!
 
-## Bygga från källkod
+## Building from source
 
 ```bash
-# Installera beroenden
+# Install dependencies
 npm install
 
-# Paketera appen
+# Package the app
 rc-apps package
 
-# Resultatet hamnar i dist/
+# The result ends up in dist/
 ```
 
 ## Permissions
 
-Appen använder minimala permissions:
+The app uses minimal permissions:
 
-- `slashcommand` - Registrera slash-kommandon
-- `room.read` - Läsa rum för att hitta användare
-- `message.write` - Skicka knuff-meddelanden
-- `user.read` - Läsa användarinformation
+- `slashcommand` - Register slash commands
+- `room.read` - Read rooms to find users
+- `message.write` - Send nudge messages
+- `user.read` - Read user information
 
-## Licens
+## License
 
 MIT
 
 ---
 
-*Av Team Våffla - https://pelleops.se*
+*By Team Våffla - https://pelleops.se*
