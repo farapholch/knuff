@@ -9,7 +9,7 @@
     "author": "Team Våffla",
     "license": "MIT",
     "devDependencies": {
-        "@rocket.chat/apps-engine": "^1.62.0",
+        "@rocket.chat/apps-engine": "^1.63.0",
         "typescript": "^5.0.0"
     },
     "dependencies": {
